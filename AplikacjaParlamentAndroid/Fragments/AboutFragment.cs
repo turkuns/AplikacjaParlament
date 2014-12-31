@@ -1,10 +1,10 @@
 ﻿//
-//  IPeopleRepository.cs
+//  AboutFragment.cs
 //
 //  Author:
 //       Jakub Syty <j.syty@media30.pl>
 //
-//  Copyright (c) 2014 
+//  Copyright (c) 2014 Fundacja Media 3.0
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,29 +18,39 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 using System;
-using System.Threading.Tasks;
-using AplikacjaParlamentShared.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace AplikacjaParlamentShared.Repositories
+using Android.App;
+using Android.Content;
+using Android.OS;
+using Android.Runtime;
+using Android.Util;
+using Android.Views;
+using Android.Widget;
+
+namespace AplikacjaParlamentAndroid
 {
-	/**
-	 * Interfejs dla repozytorium zarządzającym osobami
-	 */
-	public interface IPeopleRepository
+	public class AboutFragment : BaseFragment
 	{
-		Task<IPosel> GetPosel(int id);
-		Task<ISpeech> GetPoselSpeech(int id);
-		Task<IInterpellation> GetPoselInterpellation(int id);
-		Task<IVoting> GetSejmVoting(int id);
+		public override void OnCreate (Bundle savedInstanceState)
+		{
+			base.OnCreate (savedInstanceState);
 
-		Task<List<Posel>> GetPoselList();
-		Task<List<Speech>> GetPoselSpeeches(int id);
-		Task<List<Interpellation>> GetPoselInterpellations (int id);
-		Task<List<Vote>> GetPoselVotes (int id);
-		Task<List<Voting>> GetAllVotes ();
-		Task<List<PoselNewest>> GetPoselNewest (int id);
+			// Create your fragment here
+		}
+
+		public override View OnCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		{
+			View view = inflater.Inflate (Resource.Layout.AboutApplicationFragmentLayout, container, false);
+
+			(Activity as AboutActivity).SupportActionBar.Title = "O aplikacji";
+
+			return view;
+		}
 	}
 }
 

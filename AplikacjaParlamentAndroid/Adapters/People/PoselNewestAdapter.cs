@@ -1,5 +1,5 @@
 ﻿//
-//  SejmListAdapter.cs
+//  PoselNewestAdapter.cs
 //
 //  Author:
 //       Jakub Syty <j.syty@media30.pl>
@@ -29,27 +29,23 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using com.refractored.monodroidtoolkit.imageloader;
 using AplikacjaParlamentShared.Models;
+using Android.Text;
 
 namespace AplikacjaParlamentAndroid.Adapters
 {
-
-	public class SejmListAdapter : BaseAdapter<Posel>
+	public class PoselNewestAdapter : BaseAdapter<PoselNewest>
 	{
 
 		private class Wrapper : Java.Lang.Object
 		{
-			public TextView ImieNazwisko { get; set; }
-			public TextView Partia { get; set; }
-			public ImageView Miniature { get; set; }
-			public TextView Okreg { get; set; }
+			public TextView tvSentence { get; set; }
 		}
 
 		private Activity context;
-		private List<Posel> list; 
+		private List<PoselNewest> list; 
 
-		public SejmListAdapter(Activity context, List<Posel> list)
+		public PoselNewestAdapter(Activity context, List<PoselNewest> list)
 		{
 			this.context = context;
 			this.list = list;
@@ -61,12 +57,9 @@ namespace AplikacjaParlamentAndroid.Adapters
 			var view = convertView;
 			if (convertView == null)
 			{
-				view = context.LayoutInflater.Inflate(Resource.Layout.SejmListElement, null);
+				view = context.LayoutInflater.Inflate(Resource.Layout.PoselNewestListElement, null);
 				wrapper = new Wrapper();
-				wrapper.ImieNazwisko = view.FindViewById<TextView>(Resource.Id.imieNazwisko);
-				wrapper.Partia = view.FindViewById<TextView>(Resource.Id.partia);
-				wrapper.Miniature = view.FindViewById<ImageView> (Resource.Id.miniature);
-				wrapper.Okreg = view.FindViewById<TextView> (Resource.Id.okreg);
+				wrapper.tvSentence = view.FindViewById<TextView>(Resource.Id.tvSentence);
 				view.Tag = wrapper;
 			}
 			else
@@ -74,20 +67,13 @@ namespace AplikacjaParlamentAndroid.Adapters
 				wrapper = convertView.Tag as Wrapper;
 			}
 
-			var posel = list[position];
-			wrapper.ImieNazwisko.Text = String.Concat(posel.Imie, " ", posel.Nazwisko);
-			wrapper.Partia.Text = posel.SejmKlubyNazwa;
-			wrapper.Okreg.Text = posel.OkregWyborczyNumer.ToString();
-			loadImage (wrapper, String.Concat ("http://resources.sejmometr.pl/mowcy/a/0/", posel.MowcaId, ".jpg"));
+			var newest = list[position];
+			wrapper.tvSentence.TextFormatted = Html.FromHtml(newest.Sentence);
 
 			return view;
 		}
 
-		async private void loadImage(Wrapper wrapper, string url){
-			await ImagesHelper.SetImageFromUrlAsync(wrapper.Miniature,url, context);
-		}
-
-		public override Posel this[int position]
+		public override PoselNewest this[int position]
 		{
 			get { return list[position]; }
 		}

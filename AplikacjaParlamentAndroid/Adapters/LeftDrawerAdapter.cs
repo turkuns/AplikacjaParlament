@@ -31,8 +31,11 @@ namespace AplikacjaParlamentAndroid
 
 		private Activity context;
 		private String[] items = new String[]{
-			"Ekran główny",
-			"Izby"
+			"Najnowsze",
+			"Izby",
+			"Głosowania",
+			"Powiadomienia",
+			"O aplikacji"
 		};
 
 		public LeftDrawerAdapter (Activity context) : base()
@@ -58,7 +61,8 @@ namespace AplikacjaParlamentAndroid
 			View view = convertView; // re-use an existing view, if one is available
 			if (view == null) // otherwise create a new one
 				view = context.LayoutInflater.Inflate(Resource.Layout.DrawerListItem, null);
-			view.FindViewById<TextView>(Resource.Id.title).Text = items[position];
+			TextView tvTitle = view.FindViewById<TextView> (Resource.Id.title);
+			tvTitle.Text = items[position];
 
 			System.Type classType = null;
 
@@ -69,14 +73,41 @@ namespace AplikacjaParlamentAndroid
 			case 1:
 				classType = typeof(PeopleActivity);
 				break;
+			case 2:
+				classType = typeof(SimpleContainerActivity);
+				break;
+			case 4:
+				classType = typeof(AboutActivity);
+				break;
 			};
 
-			if (classType.Equals (context.GetType ())) {
+			if (context.GetType ().Equals(classType)) {
 				view.Enabled = false;
-				view.SetBackgroundColor(Android.Graphics.Color.ParseColor("#9E0E12"));
+				view.SetBackgroundColor(Android.Graphics.Color.ParseColor ("#9E0E12"));
 			} else {
+				view.Touch += delegate(object sender, View.TouchEventArgs e) {
+					if(e.Event.Action == MotionEventActions.Down){
+						tvTitle.SetTextColor(context.Resources.GetColor(Android.Resource.Color.Black));
+						view.SetBackgroundColor(Android.Graphics.Color.ParseColor ("#9E0E12"));
+					}
+
+					if(e.Event.Action == MotionEventActions.Up){
+						tvTitle.SetTextColor(context.Resources.GetColor(Android.Resource.Color.White));
+						view.SetBackgroundColor(Android.Graphics.Color.ParseColor ("#790205"));
+					}
+
+					e.Handled = false;
+				};
+
 				view.Click += delegate {
+					if(position == 3){
+						Toast.MakeText(context, "Pracujemy nad dostarczeniem Ci tych danych", ToastLength.Long).Show();
+						return;
+					}
 					var activity = new Intent (context, classType);
+					if(position == 2){
+						activity.PutExtra ("type", SimpleContainerActivity.VIEW_ALL_VOTES);
+					}
 					context.StartActivity (activity);
 				};
 			}

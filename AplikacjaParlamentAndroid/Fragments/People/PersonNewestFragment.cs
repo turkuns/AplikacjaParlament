@@ -1,5 +1,5 @@
 ﻿//
-//  VotingPeopleListFragment.cs
+//  PersonNewestFragment.cs
 //
 //  Author:
 //       Jakub Syty <j.syty@media30.pl>
@@ -31,8 +31,6 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using com.refractored.monodroidtoolkit.imageloader;
-
 using AplikacjaParlamentShared.Models;
 using AplikacjaParlamentShared.Repositories;
 using AplikacjaParlamentShared.Api;
@@ -40,42 +38,47 @@ using AplikacjaParlamentAndroid.Adapters;
 
 namespace AplikacjaParlamentAndroid
 {
-	public class VotingPeopleListFragment : BaseListFragment
+	public class PersonNewestFragment : BaseListFragment
 	{
+		private PersonDetailsActivity personDetailsActivity;
 
-		public VotingPeopleListFragment(List<IVotingEntry> lista){
-			listaGlosow = lista;
-		}
-
-		private List<IVotingEntry> listaGlosow;
-		private BaseActivity parentActivity;
+		private List<PoselNewest> list;
 
 		public override void OnCreate (Bundle savedInstanceState)
 		{
 			base.OnCreate (savedInstanceState);
-			parentActivity = Activity as BaseActivity;
+
+			personDetailsActivity = Activity as PersonDetailsActivity;
 		}
 
 		public override void OnStart ()
 		{
 			base.OnStart ();
 
-			this.ListAdapter = new VotingPeopleListAdapter (Activity, listaGlosow);
+			if (list == null) {
+				this.loading ();
+				GetData ();
+			}
 		}
 
-		public override void OnListItemClick(ListView l, View v, int index, long id)
+		async private void GetData()
 		{
-			// We can display everything in place with fragments.
-			// Have the list highlight this item and show the data.
-			ListView.SetItemChecked(index, true);
 
-			var posel = listaGlosow.ElementAt (index);
+			IPeopleRepository repository = PeopleRepository.Instance;
+			try {
+				switch (personDetailsActivity.PersonType) {
+				case PersonTypeEnumeration.Posel:
+					{
+						list = await repository.GetPoselNewest (personDetailsActivity.PersonId);
+						break;
+					}
+				}
 
-			var detailsActivity = new Intent (Activity, typeof(PersonDetailsActivity));
-			detailsActivity.PutExtra ("persontype", (int)PersonTypeEnumeration.Posel);
-			detailsActivity.PutExtra ("id", posel.Glosujacy);
-			detailsActivity.PutExtra ("name", String.Concat(posel.GlosujacyImieNazwisko));
-			StartActivity (detailsActivity);
+				ListAdapter = new PoselNewestAdapter(personDetailsActivity, list);
+				this.loading (true);
+			} catch (ApiRequestException ex){
+				personDetailsActivity.ShowErrorDialog (ex.Message);
+			}
 		}
 	}
 }

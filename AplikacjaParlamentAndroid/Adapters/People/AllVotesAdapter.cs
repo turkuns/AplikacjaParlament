@@ -1,10 +1,10 @@
 ﻿//
-//  SejmListAdapter.cs
+//  AllVotesAdapter.cs
 //
 //  Author:
 //       Jakub Syty <j.syty@media30.pl>
 //
-//  Copyright (c) 2014 
+//  Copyright (c) 2014 Fundacja Media 3.0
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,27 +29,23 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using com.refractored.monodroidtoolkit.imageloader;
 using AplikacjaParlamentShared.Models;
 
 namespace AplikacjaParlamentAndroid.Adapters
 {
-
-	public class SejmListAdapter : BaseAdapter<Posel>
+	public class AllVotesAdapter : BaseAdapter<Voting>
 	{
-
 		private class Wrapper : Java.Lang.Object
 		{
-			public TextView ImieNazwisko { get; set; }
-			public TextView Partia { get; set; }
-			public ImageView Miniature { get; set; }
-			public TextView Okreg { get; set; }
+			public TextView tvData { get; set; }
+			public TextView tvTytul { get; set; }
+			public ImageView ivVote { get; set; }
 		}
 
 		private Activity context;
-		private List<Posel> list; 
+		private List<Voting> list; 
 
-		public SejmListAdapter(Activity context, List<Posel> list)
+		public AllVotesAdapter(Activity context, List<Voting> list)
 		{
 			this.context = context;
 			this.list = list;
@@ -61,12 +57,11 @@ namespace AplikacjaParlamentAndroid.Adapters
 			var view = convertView;
 			if (convertView == null)
 			{
-				view = context.LayoutInflater.Inflate(Resource.Layout.SejmListElement, null);
+				view = context.LayoutInflater.Inflate(Resource.Layout.VoteListElement, null);
 				wrapper = new Wrapper();
-				wrapper.ImieNazwisko = view.FindViewById<TextView>(Resource.Id.imieNazwisko);
-				wrapper.Partia = view.FindViewById<TextView>(Resource.Id.partia);
-				wrapper.Miniature = view.FindViewById<ImageView> (Resource.Id.miniature);
-				wrapper.Okreg = view.FindViewById<TextView> (Resource.Id.okreg);
+				wrapper.tvData = view.FindViewById<TextView>(Resource.Id.tvData);
+				wrapper.tvTytul = view.FindViewById<TextView>(Resource.Id.tvTytul);
+				wrapper.ivVote = view.FindViewById<ImageView> (Resource.Id.ivVote);
 				view.Tag = wrapper;
 			}
 			else
@@ -74,20 +69,17 @@ namespace AplikacjaParlamentAndroid.Adapters
 				wrapper = convertView.Tag as Wrapper;
 			}
 
-			var posel = list[position];
-			wrapper.ImieNazwisko.Text = String.Concat(posel.Imie, " ", posel.Nazwisko);
-			wrapper.Partia.Text = posel.SejmKlubyNazwa;
-			wrapper.Okreg.Text = posel.OkregWyborczyNumer.ToString();
-			loadImage (wrapper, String.Concat ("http://resources.sejmometr.pl/mowcy/a/0/", posel.MowcaId, ".jpg"));
+			var voting = list[position];
+			wrapper.tvData.Text = voting.Czas.Split (' ')[0].ToString ();
+			wrapper.tvTytul.Text = voting.Tytul;
+
+			if (voting.Wynik == 1)
+				wrapper.ivVote.SetImageResource (Resource.Drawable.g_tak);
 
 			return view;
 		}
 
-		async private void loadImage(Wrapper wrapper, string url){
-			await ImagesHelper.SetImageFromUrlAsync(wrapper.Miniature,url, context);
-		}
-
-		public override Posel this[int position]
+		public override Voting this[int position]
 		{
 			get { return list[position]; }
 		}
@@ -103,3 +95,4 @@ namespace AplikacjaParlamentAndroid.Adapters
 		}
 	}
 }
+
